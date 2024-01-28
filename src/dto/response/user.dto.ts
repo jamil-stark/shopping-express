@@ -4,4 +4,5 @@ export class UserDTO{
     fullname: string;
     email: string;
     role: string;
+    dateCreated: Date;8
 }
