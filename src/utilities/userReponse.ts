@@ -1,8 +1,8 @@
 import { AuthenticationDTO } from "../dto/response/authentication.dto";
 import { UserDTO } from "../dto/response/user.dto";
 import { JWT } from "../security/jwt";
-
-export async function createUserDTOAndRespond(res, status, message, user) {
+export class UserResponse {
+    async createUserDTOAndRespond(res, status, message, user) {
     const authenticationDTO = new AuthenticationDTO();
     const userDTO = new UserDTO();
     userDTO.username = user.username;
@@ -17,4 +17,5 @@ export async function createUserDTOAndRespond(res, status, message, user) {
     authenticationDTO.data = userDTO;
 
     res.status(status).json(authenticationDTO);
+}
 }
