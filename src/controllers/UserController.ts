@@ -33,12 +33,13 @@ export class UserController {
       try {
         await userRepositoy.save(user);
         const userResponse = new UserResponse();
-        await userResponse.createUserDTOAndRespond(
+        await userResponse.loginAndCreateUserResponse(
           res,
           201,
           "User Created Successfully!",
           user
         );
+        console.log("User created successfully!");
       } catch (error) {
         console.error("Error during registration:", error);
         res.status(500).json({ message: "Internal Server Error" });
@@ -49,7 +50,6 @@ export class UserController {
   async getAllUsers(req: Request, res: Response) {
     const userRepositoy = AppDataSource.getRepository(User);
     const users = await userRepositoy.find();
-    console.log(users);
     const generalDTO: GeneralDTO = new GeneralDTO();
     generalDTO.status = 200;
     generalDTO.message = "Users Retrieved Successfully!";
@@ -76,25 +76,40 @@ export class UserController {
     }
     const user = await userRepositoy.findOneBy({ username: body.username });
     if (!user) {
-      res.status(400).json({ message: "User does not exist" });
+      res.status(400).json({ message: "Invalid Credentials!" });
       return;
     }
     if (!(await PasswordHash.comparePassword(body.password, user.password))) {
       res.status(400).json({ message: "Incorrect Password" });
       return;
     }
-    const authenticationDTO: AuthenticationDTO = new AuthenticationDTO();
-    const userDTO = new UserDTO();
-    userDTO.username = user.username;
-    userDTO.fullname = user.fullname;
-    userDTO.email = user.email;
-    userDTO.role = user.role;
-    userDTO.dateCreated = user.dateCreated;
-
-    authenticationDTO.status = 200;
-    authenticationDTO.token = await JWT.generateToken(user);
-    authenticationDTO.message = "User Logged In Successfully!";
-    authenticationDTO.data = userDTO;
-    res.status(200).json(authenticationDTO);
+    const userResponse = new UserResponse();
+    await userResponse.loginAndCreateUserResponse(
+      res,
+      200,
+      "Login Successful!",
+      user
+    );
   }
+
+  // async getUserByToken(req: Request, res: Response) {
+  //   const userRepositoy = AppDataSource.getRepository(User);
+  //   const token: string = req.body.token;
+  //   if (!token) {
+  //     res.status(400).json({ message: "Please provide all required fields" });
+  //     return;
+  //   }
+  //   const user = await userRepositoy.findOneBy({ token: token });
+  //   if (!user) {
+  //     res.status(400).json({ message: "Invalid Credentials!" });
+  //     return;
+  //   }
+  //   const userResponse = new UserResponse();
+  //   await userResponse.createUserDTOAndRespond(
+  //     res,
+  //     200,
+  //     "User Retrieved Successfully!",
+  //     user
+  //   );
+  // }
 }

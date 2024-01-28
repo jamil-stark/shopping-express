@@ -2,7 +2,7 @@ import { AuthenticationDTO } from "../dto/response/authentication.dto";
 import { UserDTO } from "../dto/response/user.dto";
 import { JWT } from "../security/jwt";
 export class UserResponse {
-    async createUserDTOAndRespond(res, status, message, user) {
+    async loginAndCreateUserResponse(res, status, message, user) {
     const authenticationDTO = new AuthenticationDTO();
     const userDTO = new UserDTO();
     userDTO.username = user.username;
@@ -12,7 +12,9 @@ export class UserResponse {
     userDTO.dateCreated = user.dateCreated;
 
     authenticationDTO.status = status;
-    authenticationDTO.token = await JWT.generateToken(user);
+    const tokenAndRefreshToken = await JWT.generateToken(user);
+    authenticationDTO.token = tokenAndRefreshToken.token;
+    authenticationDTO.refreshToken = tokenAndRefreshToken.refreshToken;
     authenticationDTO.message = message;
     authenticationDTO.data = userDTO;
 
