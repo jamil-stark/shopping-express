@@ -5,7 +5,7 @@ import express = require("express");
 const router = express.Router();
 const userController = new UserController();
 
-// router.get("/", userController.getUser);
 router.post("/", userController.register);
+router.get("/", userController.getAllUsers);
 
 export default router;

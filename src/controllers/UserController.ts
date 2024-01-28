@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { AppDataSource } from "../data-source";
 import { RegisterDTO } from "../dto/request/register.dto";
+import { GeneralDTO } from "../dto/response/general.tdo";
 import { User } from "../entity/User";
 import { PasswordHash } from "../security/passwordHash";
 import { AuthenticationDTO } from "../dto/response/authentication.dto";
@@ -44,5 +45,26 @@ export class UserController {
         res.status(201).json(authenticationDTO);
         }
     }
+
+  
+  async getAllUsers(req: Request, res: Response) {
+    const userRepositoy = AppDataSource.getRepository(User);
+    const users = await userRepositoy.find();
+    console.log(users);
+    const generalDTO: GeneralDTO = new GeneralDTO();
+    generalDTO.status = 200;
+    generalDTO.message = "Users Retrieved Successfully!";
+    const userDTOs: UserDTO[] = [];
+    users.forEach(user => {
+      const userDTO = new UserDTO();
+      userDTO.username = user.username;
+      userDTO.fullname = user.fullname;
+      userDTO.email = user.email;
+      userDTO.role = user.role;
+      userDTO.dateCreated = user.dateCreated;
+      userDTOs.push(userDTO);
+    });
+    generalDTO.data = userDTOs;
+    res.status(200).json(generalDTO);
+  }
 }
-        // res.send("Hello World");
