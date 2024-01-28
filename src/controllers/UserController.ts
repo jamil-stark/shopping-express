@@ -7,7 +7,6 @@ import { PasswordHash } from "../security/passwordHash";
 import { AuthenticationDTO } from "../dto/response/authentication.dto";
 import { UserDTO } from "../dto/response/user.dto";
 import { JWT } from "../security/jwt";
-// import { createUserDTOAndRespond } from "../utilities/helpers";
 import { UserResponse } from "../utilities/userReponse";
 
 export class UserController {
