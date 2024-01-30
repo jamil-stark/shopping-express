@@ -1,4 +1,5 @@
 import { AuthenticationDTO } from "../dto/response/authentication.dto";
+import { GeneralDTO } from "../dto/response/general.tdo";
 import { UserDTO } from "../dto/response/user.dto";
 import { JWT } from "../security/jwt";
 export class UserResponse {
@@ -19,5 +20,21 @@ export class UserResponse {
     authenticationDTO.data = userDTO;
 
     res.status(status).json(authenticationDTO);
+}
+
+async userResponse(res, status, message, user) {
+    const userDTO = new UserDTO();
+    userDTO.username = user.username;
+    userDTO.fullname = user.fullname;
+    userDTO.email = user.email;
+    userDTO.role = user.role;
+    userDTO.dateCreated = user.dateCreated;
+
+    const generalDTO = new GeneralDTO();
+    generalDTO.status = status;
+    generalDTO.message = message;
+    generalDTO.data = userDTO;
+
+    res.status(status).json(generalDTO);
 }
 }

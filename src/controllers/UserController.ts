@@ -4,10 +4,11 @@ import { RegisterDTO } from "../dto/request/register.dto";
 import { GeneralDTO } from "../dto/response/general.tdo";
 import { User } from "../entity/User";
 import { PasswordHash } from "../security/passwordHash";
-import { AuthenticationDTO } from "../dto/response/authentication.dto";
 import { UserDTO } from "../dto/response/user.dto";
-import { JWT } from "../security/jwt";
 import { UserResponse } from "../utilities/userReponse";
+import { LoginDTO } from "../dto/request/login.dto";
+import { JWT } from "../security/jwt";
+import { TokenBodyDto } from "../dto/request/tokenBody.dto";
 
 export class UserController {
   async register(req: Request, res: Response) {
@@ -69,18 +70,21 @@ export class UserController {
 
   async login(req: Request, res: Response) {
     const userRepositoy = AppDataSource.getRepository(User);
-    const body = req.body;
+    const body: LoginDTO = req.body;
     if (!body.username || !body.password) {
       res.status(400).json({ message: "Please provide all required fields" });
+      console.log("Wrong fields");
       return;
     }
     const user = await userRepositoy.findOneBy({ username: body.username });
     if (!user) {
       res.status(400).json({ message: "Invalid Credentials!" });
+      console.log("Invalid Credentials!");
       return;
     }
     if (!(await PasswordHash.comparePassword(body.password, user.password))) {
-      res.status(400).json({ message: "Incorrect Password" });
+      res.status(400).json({ message: "Invalid Credentials!" });
+      console.log("Invalid Credentials!");
       return;
     }
     const userResponse = new UserResponse();
@@ -90,26 +94,22 @@ export class UserController {
       "Login Successful!",
       user
     );
+    console.log("Login Successful!");
   }
 
-  // async getUserByToken(req: Request, res: Response) {
-  //   const userRepositoy = AppDataSource.getRepository(User);
-  //   const token: string = req.body.token;
-  //   if (!token) {
-  //     res.status(400).json({ message: "Please provide all required fields" });
-  //     return;
-  //   }
-  //   const user = await userRepositoy.findOneBy({ token: token });
-  //   if (!user) {
-  //     res.status(400).json({ message: "Invalid Credentials!" });
-  //     return;
-  //   }
-  //   const userResponse = new UserResponse();
-  //   await userResponse.createUserDTOAndRespond(
-  //     res,
-  //     200,
-  //     "User Retrieved Successfully!",
-  //     user
-  //   );
-  // }
+  async getUserByToken(req: Request, res: Response) {
+    const body: TokenBodyDto = req.body;
+    if (!body.token){
+      res.status(400).json({ message: "Please provide all required fields" });
+    }
+    const user = await JWT.getUserByToken(body.token);
+    if (!user) {
+      res.status(400).json({ message: "Invalid Token!" });
+      console.log("Invalid Token!");
+      return;
+    }
+    const userResponse = new UserResponse();
+    await userResponse.userResponse(res, 200, "User Retrieved Successfully!", user);
+    console.log("User Retrieved Successfully!");
+}
 }
