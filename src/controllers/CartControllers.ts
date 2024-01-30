@@ -51,7 +51,8 @@ export class CartController {
         generalDTO.status = 201;
         generalDTO.message = "Cart created Successfully";
         const cart = await CartController.getCartByUser(req.body.user);
-        generalDTO.data = await CartController.getCartByUser(req.body.user);
+        generalDTO.data = cart;
+        generalDTO.count = cart.length;
         res.status(201).json(generalDTO);
       }
     } catch (error) {
@@ -68,7 +69,9 @@ export class CartController {
         const generalDTO: GeneralDTO = new GeneralDTO();
         generalDTO.status = 200;
         generalDTO.message = "Cart retrieved Successfully";
-        generalDTO.data = await CartController.getCartByUser(req.body.user);
+        const itemsInUserCart = await CartController.getCartByUser(req.body.user);
+        generalDTO.data = itemsInUserCart;
+        generalDTO.count = itemsInUserCart.length;
         res.status(200).json(generalDTO);
       }
     } catch (error) {
