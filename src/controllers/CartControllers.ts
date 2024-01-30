@@ -110,11 +110,14 @@ export class CartController {
           res.status(404).json({ message: "Product not found in cart!" });
           return;
         }
-        
+
         await cartRepository.remove(cart);
         const generalDTO: GeneralDTO = new GeneralDTO();
         generalDTO.status = 200;
         generalDTO.message = "Product deleted successfully!";
+        const itemsInUserCart = await CartController.getCartByUser(user);
+        generalDTO.data = itemsInUserCart;
+        generalDTO.count = itemsInUserCart.length;
         res.status(200).json(generalDTO);
       }
     } catch (error) {
