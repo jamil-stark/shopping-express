@@ -7,7 +7,7 @@ import { Product } from "../entity/Product";
 import { User } from "../entity/User";
 
 export class CartController {
-  public static async getCartByUser(user: User) {
+  public static async getUserCartAndProducts(user: User) {
     const cartRepository = AppDataSource.getRepository(Cart);
     const cart = await cartRepository.find({
       relations: {
@@ -50,7 +50,7 @@ export class CartController {
         const generalDTO: GeneralDTO = new GeneralDTO();
         generalDTO.status = 201;
         generalDTO.message = "Cart created Successfully";
-        const cart = await CartController.getCartByUser(req.body.user);
+        const cart = await CartController.getUserCartAndProducts(req.body.user);
         generalDTO.data = cart;
         generalDTO.count = cart.length;
         res.status(201).json(generalDTO);
@@ -69,7 +69,7 @@ export class CartController {
         const generalDTO: GeneralDTO = new GeneralDTO();
         generalDTO.status = 200;
         generalDTO.message = "Cart retrieved Successfully";
-        const itemsInUserCart = await CartController.getCartByUser(
+        const itemsInUserCart = await CartController.getUserCartAndProducts(
           req.body.user
         );
         generalDTO.data = itemsInUserCart;
@@ -115,7 +115,7 @@ export class CartController {
         const generalDTO: GeneralDTO = new GeneralDTO();
         generalDTO.status = 200;
         generalDTO.message = "Product deleted successfully!";
-        const itemsInUserCart = await CartController.getCartByUser(user);
+        const itemsInUserCart = await CartController.getUserCartAndProducts(user);
         generalDTO.data = itemsInUserCart;
         generalDTO.count = itemsInUserCart.length;
         res.status(200).json(generalDTO);

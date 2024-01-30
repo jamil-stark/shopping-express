@@ -4,6 +4,8 @@ import { User } from "./entity/User"
 import { RefreshToken } from "./entity/RefreshToken"
 import { Product } from "./entity/Product"
 import { Cart } from "./entity/Cart"
+import { OrderItem } from "./entity/OrderItem"
+import { Order } from "./entity/Order"
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -14,7 +16,7 @@ export const AppDataSource = new DataSource({
     database: "shopping",
     synchronize: true,
     logging: false,
-    entities: [User, RefreshToken, Product, Cart],
+    entities: [User, RefreshToken, Product, Cart, OrderItem, Order],
     migrations: [],
     subscribers: [],
 })
