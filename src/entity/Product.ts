@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Cart } from "./Cart";
 
 @Entity()
 export class Product{
@@ -25,4 +26,8 @@ export class Product{
 
     @CreateDateColumn({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
     dateCreated: Date;
+
+    @OneToMany(() => Cart, cart => cart.product)
+    cart: Cart[];
+    
 }

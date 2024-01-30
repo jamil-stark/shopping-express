@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm"
 import { RefreshToken } from "./RefreshToken"
+import { Cart } from "./Cart"
 
 @Entity()
 export class User {
@@ -27,4 +28,7 @@ export class User {
 
     @OneToMany(type => RefreshToken, refreshToken => refreshToken.user)
     refreshTokens: RefreshToken;    
+    
+    @OneToMany(() => Cart, cart => cart.user)
+    cart: Cart[];
 }
