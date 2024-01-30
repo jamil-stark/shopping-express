@@ -32,4 +32,42 @@ export class ProductController{
         }
     }
 
+    async getAllProducts(req: Request, res: Response){
+        const productRepository = AppDataSource.getRepository(Product)
+        const products = await productRepository.find()
+        const generalDTO: GeneralDTO = new GeneralDTO();
+        generalDTO.status = 200
+        generalDTO.message = "Products retrieved successfully!"
+        generalDTO.data = products
+        res.status(200).json(generalDTO)
+    }
+
+    async getProductById(req: Request, res: Response){
+        const productRepository = AppDataSource.getRepository(Product)
+        const product = await productRepository.findOneBy({id: parseInt(req.params.id)})
+        if(!product){
+            res.status(404).json({message: "Product not found!"})
+            return
+        }
+        const generalDTO: GeneralDTO = new GeneralDTO();
+        generalDTO.status = 200
+        generalDTO.message = "Product retrieved successfully!"
+        generalDTO.data = product
+        res.status(200).json(generalDTO)
+    }
+
+    async deleteProductById(req: Request, res: Response){
+        const productRepository = AppDataSource.getRepository(Product)
+        const product = await productRepository.findOneBy({id: parseInt(req.params.id)})
+        if(!product){
+            res.status(404).json({message: "Product not found!"})
+            return
+        }
+        await productRepository.remove(product)
+        const generalDTO: GeneralDTO = new GeneralDTO();
+        generalDTO.status = 200
+        generalDTO.message = "Product deleted successfully!"
+        res.status(200).json(generalDTO)
+    }
+
 }
