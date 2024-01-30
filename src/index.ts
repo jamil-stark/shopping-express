@@ -1,6 +1,7 @@
 import { AppDataSource } from "./data-source";
 import * as express from "express";
 import userRoutes from "./routes/user.routes";
+import producRoutes from "./routes/product.routes";
 
 const app = express();
 const port = 4000;
@@ -13,5 +14,6 @@ AppDataSource.initialize()
 
 app.use(express.json());
 app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/products", producRoutes);
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
