@@ -69,9 +69,52 @@ export class CartController {
         const generalDTO: GeneralDTO = new GeneralDTO();
         generalDTO.status = 200;
         generalDTO.message = "Cart retrieved Successfully";
-        const itemsInUserCart = await CartController.getCartByUser(req.body.user);
+        const itemsInUserCart = await CartController.getCartByUser(
+          req.body.user
+        );
         generalDTO.data = itemsInUserCart;
         generalDTO.count = itemsInUserCart.length;
+        res.status(200).json(generalDTO);
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  async deleteItemInUserCart(req: Request, res: Response) {
+    try {
+      if (await JWT.verifyToken(req, res)) {
+        const cartRepository = AppDataSource.getRepository(Cart);
+        const productRepository = AppDataSource.getRepository(Product);
+        const product = await productRepository.findOneBy({
+          id: parseInt(req.params.id),
+        });
+        if (!product) {
+          res.status(404).json({ message: "Product not found!" });
+          return;
+        }
+
+        const userRepositoy = AppDataSource.getRepository(User);
+        const user = await userRepositoy.findOneBy({ id: req.body.user.id });
+        const cart = await cartRepository.find({
+          relations: {
+            product: true,
+          },
+          where: {
+            user: { id: user.id },
+            product: { id: product.id },
+          },
+        });
+
+        if (!cart) {
+          res.status(404).json({ message: "Product not found in cart!" });
+          return;
+        }
+        
+        await cartRepository.remove(cart);
+        const generalDTO: GeneralDTO = new GeneralDTO();
+        generalDTO.status = 200;
+        generalDTO.message = "Product deleted successfully!";
         res.status(200).json(generalDTO);
       }
     } catch (error) {
