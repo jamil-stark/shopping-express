@@ -3,6 +3,7 @@ import { DataSource } from "typeorm"
 import { User } from "./entity/User"
 import { RefreshToken } from "./entity/RefreshToken"
 import { Product } from "./entity/Product"
+import { Cart } from "./entity/Cart"
 
 export const AppDataSource = new DataSource({
     type: "postgres",
@@ -13,7 +14,7 @@ export const AppDataSource = new DataSource({
     database: "shopping",
     synchronize: true,
     logging: false,
-    entities: [User, RefreshToken, Product],
+    entities: [User, RefreshToken, Product, Cart],
     migrations: [],
     subscribers: [],
 })

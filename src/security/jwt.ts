@@ -49,7 +49,6 @@ export class JWT {
         return;
       }
       req.body.user = user;
-      console.log(req.body);
       return true;
     } catch (error) {
       res.status(401).json({ message: "Unauthorized" });
