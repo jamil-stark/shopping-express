@@ -6,37 +6,57 @@ import { Helper } from "../utilities/helpers";
 import { OrderItem } from "../entity/OrderItem";
 import { AppDataSource } from "../data-source";
 import { Cart } from "../entity/Cart";
+import { Product } from "../entity/Product";
+import { GeneralDTO } from "../dto/response/general.tdo";
 
 export class OrderController {
   async createOrder(req: Request, res: Response) {
-    // try{
-        if (await JWT.verifyToken(req, res)) {
-            const user = req.body.user;
-            const cartItems = await CartController.getUserCartAndProducts(user)
-            const order = new Order();
-            const userEntity = await Helper.getUserEntityById(user.id);
-            order.user = userEntity;
-            console.log("user", userEntity);
-            const orderRepository = AppDataSource.getRepository(Order);
-            await orderRepository.save(order);
+    try{
+    if (await JWT.verifyToken(req, res)) {
+      const user = req.body.user;
+      const cartItems = await CartController.getUserCartAndProducts(user);
+      const order = new Order();
+      const userEntity = await Helper.getUserEntityById(user.id);
+      order.user = userEntity;
+      const orderRepository = AppDataSource.getRepository(Order);
+      await orderRepository.save(order);
 
-            const orderItemRepository = AppDataSource.getRepository(OrderItem);
-            cartItems.forEach(cartItem => {
-                const orderItem = new OrderItem();
-                orderItem.product = cartItem.product;
-                orderItem.quantity = cartItem.quantity;
-                orderItem.order = order;
-                orderItemRepository.save(orderItem);
-            });
+      const orderItemRepository = AppDataSource.getRepository(OrderItem);
+      const productRepository = AppDataSource.getRepository(Product);
+      cartItems.forEach((cartItem) => {
+        const orderItem = new OrderItem();
+        orderItem.product = cartItem.product;
+        orderItem.quantity = cartItem.quantity;
+        orderItem.order = order;
+        orderItemRepository.save(orderItem);
 
-            const cartRepository = AppDataSource.getRepository(Cart);
-            await cartRepository.delete({
-                user: user.id,
-            });
-            res.status(201).json({ message: "Order created Successfully" });
-        }
-    // } catch (error) {
-        // res.status(500).json({ message: error.message });
-        // }
+        cartItem.product.inStock -= cartItem.quantity;
+        productRepository.save(cartItem.product);
+      });
+
+      const cartRepository = AppDataSource.getRepository(Cart);
+      await cartRepository.delete({
+        user: user.id,
+      });
+
+      const generalDTO = new GeneralDTO();
+      generalDTO.status = 201;
+      generalDTO.message = "Order created";
+      const orderResponseData = await orderRepository.find({
+        relations: {
+          orderItems: {
+            product: true,
+          },
+        },
+        where: {
+          id: order.id,
+        },
+      });
+      generalDTO.data = orderResponseData;
+      res.status(201).json(generalDTO);
+    }
+    } catch (error) {
+    res.status(500).json({ message: error.message });
+    }
   }
 }
