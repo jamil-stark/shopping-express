@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+      }
+      .form-container {
+        max-width: 400px;
+        margin: 50px auto;
+      }
+    </style>
+    <title>Login - Electronics Shop</title>
+  </head>
+  <body>
+    <div class="container form-container">
+      <h2>Login</h2>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input
+            type="text"
+            class="form-control"
+            id="username"
+            placeholder="Enter username"
+          />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <div class="input-group">
+            <input
+              type="password"
+              class="form-control"
+              id="password"
+              placeholder="Password"
+            />
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <input
+                  type="checkbox"
+                  id="showPasswordToggle"
+                  onchange="togglePasswordVisibility()"
+                />
+                <label for="showPasswordToggle" class="mb-0 ml-2"
+                  >Show Password</label
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <p class="mt-3">
+          Don't have an account? <a href="signup.html">Signup</a>
+        </p>
+        <a href="index.html">Back to home</a>
+      </form>
+    </div>
+    <script>
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          const username = document.getElementById("username").value;
+          const password = document.getElementById("password").value;
+          const requestBody = {
+            username: username,
+            password: password,
+          };
+
+          axios
+            .post("http://localhost:8080/api/v1/users/login/", requestBody)
+            .then((response) => {
+              console.log("Login successful:", response);
+              const token = response.data.token;
+              const fullname = response.data.data.fullname;
+              const userRole = response.data.data.role;
+              localStorage.setItem("authToken", token);
+              localStorage.setItem("fullname", fullname);
+              localStorage.setItem("userRole", userRole);
+              window.location.href = "index.html";
+            })
+            .catch((error) => {
+              alert(error.response.data.message);
+              console.error("Error logging in:", error);
+            });
+        });
+
+      function togglePasswordVisibility() {
+        var passwordInput = document.getElementById("password");
+        var showPasswordToggle = document.getElementById("showPasswordToggle");
+        if (passwordInput.type === "password") {
+          passwordInput.type = "text";
+          showPasswordToggle.textContent = "Hide Password";
+        } else {
+          passwordInput.type = "password";
+          showPasswordToggle.textContent = "Show Password";
+        }
+      }
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  </body>
+</html>

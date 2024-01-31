@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        background-color: #f4f4f4;
+      }
+
+      .navbar {
+        background-color: #343a40;
+        color: white;
+      }
+
+      .product {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .product img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+
+      .product-card {
+        border: 1px solid #e1e1e1;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 30px;
+        transition: transform 0.3s;
+      }
+
+      .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .product-title {
+        font-size: 1.2em;
+        margin-top: 15px;
+        margin-bottom: 10px;
+      }
+
+      .product-description,
+      .product-details {
+        margin-bottom: 15px;
+      }
+
+      .btn-add-to-cart {
+        background-color: #007bff;
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+
+      .btn-add-to-cart:hover {
+        background-color: #0056b3;
+      }
+    </style>
+    <title>Electronics Shop</title>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+      <a class="navbar-brand" href="#">Shopping</a>
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-toggle="collapse"
+        data-target="#navbarNav"
+        aria-controls="navbarNav"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="signup.html">Login/Register</a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              href="#"
+              data-toggle="modal"
+              data-target="#cartModal"
+            >
+              <i class="fas fa-shopping-cart"></i> Cart
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="orders.html">Orders</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container mt-4">
+      <div class="row" id="productContainer">
+        <!-- Dynamic products will be populated here -->
+      </div>
+    </div>
+
+    <!-- Cart Modal -->
+    <div
+      class="modal"
+      id="cartModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="cartModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header bg-dark text-white">
+            <h5 class="modal-title" id="cartModalLabel">Shopping Cart</h5>
+            <button
+              type="button"
+              class="close text-white"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div id="cartItems">
+              <!-- Cart items will be displayed here -->
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Continue Shopping
+            </button>
+            <button type="button" class="btn btn-primary" id="continueBtn">
+              <span
+                class="spinner-border spinner-border-sm"
+                role="status"
+                aria-hidden="true"
+                style="display: none"
+              ></span>
+              Continue
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <script>
+      axios
+        .get("http://localhost:8080/api/v1/products/")
+        .then(function (response) {
+          const data = response.data;
+          console.log(data);
+          if (data.status === 200) {
+            const products = data.data;
+            const productContainer =
+              document.getElementById("productContainer");
+
+            products.forEach((product) => {
+              const productHtml = `
+          <div class="col-md-4 product">
+            <img src="${product.imageURL}" alt="${product.name}" class="img-fluid" >
+            <h4>${product.name}</h4>
+            <p><strong>Price:</strong> UGX: ${product.price}</p>
+            <p><strong>In Stock:</strong> ${product.inStock}</p>
+            <div class="quantity-adjust"></div>
+            <button class="btn btn-primary" onclick="addToCart('${product.name}', '${product.id}', 1, ${product.price}, '${product.imageURL}')">Add to Cart</button>
+
+          </div>
+        `;
+              productContainer.innerHTML += productHtml;
+            });
+          } else {
+            console.error("Failed to fetch products:", data.message);
+          }
+        })
+        .catch(function (error) {
+          console.error("Error fetching products:", error);
+        });
+
+      var cartItems = [];
+
+      function addToCart(productName, productId, quantity, price, imageURL) {
+        var updatedCartItems = [...cartItems];
+
+        var existingItem = updatedCartItems.find(
+          (item) => item.productId === productId
+        );
+
+        if (existingItem) {
+          existingItem.quantity += quantity;
+        } else {
+          updatedCartItems.push({
+            productId,
+            name: productName,
+            quantity,
+            price,
+            imageURL,
+          });
+        }
+
+        cartItems = updatedCartItems;
+
+        updateCartDisplay();
+      }
+      function adjustQuantity(productName, adjustment) {
+        var item = cartItems.find((item) => item.name === productName);
+
+        if (item) {
+          item.quantity += adjustment;
+          if (item.quantity < 1) {
+            cartItems = cartItems.filter((i) => i.name !== productName);
+          }
+          updateCartDisplay();
+        }
+      }
+
+      function updateCartDisplay() {
+        var cartItemsContainer = document.getElementById("cartItems");
+        cartItemsContainer.innerHTML = "";
+
+        cartItems.forEach((item) => {
+          var cartItem = document.createElement("div");
+          cartItem.classList.add(
+            "d-flex",
+            "flex-wrap",
+            "justify-content-between",
+            "align-items-center",
+            "mb-3",
+            "p-3",
+            "border",
+            "rounded"
+          );
+
+          var productImage = document.createElement("img");
+          productImage.src = item.imageURL;
+          productImage.alt = item.name;
+          productImage.classList.add("img-fluid", "mr-3");
+          productImage.style.maxWidth = "50px";
+
+          var productInfo = document.createElement("div");
+          productInfo.classList.add(
+            "d-flex",
+            "flex-column",
+            "flex-grow-1",
+            "overflow-hidden"
+          );
+          productInfo.style.maxWidth = "calc(100% - 60px)";
+
+          var quantityAdjust = document.createElement("div");
+          quantityAdjust.classList.add("quantity-adjust");
+          quantityAdjust.innerHTML = `
+            <button class="btn btn-outline-secondary btn-sm" onclick="adjustQuantity('${item.name}', -1)">-</button>
+            <span class="mx-2">${item.quantity}</span>
+            <button class="btn btn-outline-secondary btn-sm" onclick="adjustQuantity('${item.name}', 1)">+</button>
+        `;
+
+          var itemName = document.createElement("span");
+          itemName.textContent = item.name;
+          itemName.classList.add("text-truncate");
+          itemName.style.maxWidth = "100%";
+
+          var removeButton = document.createElement("button");
+          removeButton.classList.add("btn", "btn-danger", "btn-sm");
+          removeButton.textContent = "Remove";
+          removeButton.onclick = function () {
+            cartItems = cartItems.filter((i) => i.name !== item.name);
+            updateCartDisplay();
+          };
+
+          productInfo.appendChild(itemName);
+          productInfo.appendChild(quantityAdjust);
+
+          cartItem.appendChild(productImage);
+          cartItem.appendChild(productInfo);
+          cartItem.appendChild(removeButton);
+
+          cartItemsContainer.appendChild(cartItem);
+        });
+      }
+
+      document
+        .querySelector(".btn.btn-primary")
+        .addEventListener("click", function () {
+          const authToken = localStorage.getItem("authToken");
+          const requestBody = cartItems.map((item) => ({
+            productId: parseInt(item.productId, 10),
+            quantity: item.quantity,
+          }));
+
+          const headers = {
+            Authorization: `Bearer ${authToken}`,
+          };
+
+          axios
+            .post("http://localhost:8080/api/v1/cart/", requestBody, {
+              headers,
+            })
+            .then((response) => {
+              console.log(
+                "Items sent to the server successfully:",
+                response.data
+              );
+              window.location.href = "confirmOrder.html";
+              cartItems = [];
+              updateCartDisplay();
+            })
+            .catch((error) => {
+              console.log(requestBody);
+              console.error("Error sending items to server:", error);
+            });
+        });
+
+      document
+        .getElementById("continueBtn")
+        .addEventListener("click", function () {
+          const spinner = document.querySelector(".spinner-border");
+          spinner.style.display = "inline-block";
+
+          this.disabled = true;
+
+          const authToken = localStorage.getItem("authToken");
+          const requestBody = cartItems.map((item) => ({
+            productId: parseInt(item.productId, 10),
+            quantity: item.quantity,
+          }));
+
+          const headers = {
+            Authorization: `Bearer ${authToken}`,
+          };
+
+          axios
+            .post("http://localhost:8080/api/v1/cart/", requestBody, {
+              headers,
+            })
+            .then((response) => {
+              console.log(
+                "Items sent to the server successfully:",
+                response.data
+              );
+              window.location.href = "confirmOrder.html";
+              cartItems = [];
+              updateCartDisplay();
+              spinner.style.display = "none";
+            })
+            .catch((error) => {
+              console.log(requestBody);
+              console.error("Error sending items to server:", error);
+              spinner.style.display = "none";
+            });
+        });
+    </script>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
