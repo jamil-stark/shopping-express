@@ -17,7 +17,26 @@ export class CartController {
         user: { id: user.id },
       },
     });
-    return cart;
+    // check if cart has duplicate products and delete it from the cart database
+    const duplicateProducts = cart.filter(
+      (item, index, self) =>
+        index !== self.findIndex((t) => t.product.id === item.product.id)
+    );
+    if (duplicateProducts.length > 0) {
+      await Promise.all(
+        duplicateProducts.map(async (element) => {
+          await cartRepository.remove(element);
+        })
+      );
+    }
+    return await cartRepository.find({
+      relations: {
+        product: true,
+      },
+      where: {
+        user: { id: user.id },
+      },
+    });
   }
 
   async createCart(req: Request, res: Response) {
