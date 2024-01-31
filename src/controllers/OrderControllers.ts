@@ -94,7 +94,6 @@ export class OrderController {
   async getAllOrders(req: Request, res: Response) {
     try {
       if (await JWT.verifyToken(req, res)) {
-        // check if user is admin
         const userRepository = AppDataSource.getRepository(User);
         const user = await userRepository.findOne({
           where: {
